@@ -1,11 +1,10 @@
 # FitStudio — plataforma de gestão para studios fitness
 
 **Área do aluno + painel administrativo** para studios e academias pequenas que trabalham com aulas
-em turma com vaga limitada. O aluno marca a própria aula vendo a vaga real e paga pelo app; o acesso
-à agenda só é liberado quando o pagamento é confirmado. O dono acompanha o dia, os alunos e a
-cobrança em um painel.
+em turma com vaga limitada. O aluno marca a própria aula vendo a vaga real, e o acesso à agenda
+segue o plano dele. O dono acompanha o dia, os alunos e os vencimentos em um painel.
 
-> Sistema que desenvolvi para um studio real e generalizei como produto. **Código-fonte privado**:
+> Sistema que desenvolvi para studios e academias de aula em turma. **Código-fonte privado**:
 > esta página mostra o que ele faz. As telas usam marca, pessoas e dados fictícios.
 > Acesso ao código para avaliação técnica sob solicitação.
 
@@ -17,16 +16,16 @@ cobrança em um painel.
 
 ## O problema
 
-Em studio pequeno, agendamento e cobrança acontecem no WhatsApp: o professor confirma horário na
-mão, lembra quem está devendo e libera quem pagou. O FitStudio tira isso do WhatsApp: o aluno agenda
-sozinho em três passos e a cobrança recorrente libera o acesso automaticamente.
+Em studio pequeno, agendamento e controle de plano acontecem no WhatsApp: o professor confirma
+horário na mão, lembra quem está devendo e libera o acesso de quem está em dia. O FitStudio tira isso
+do WhatsApp: o aluno agenda sozinho em três passos e o painel mostra quem está com plano vencido.
 
 ## Funcionalidades
 
 **Área do aluno (pensada para o celular)**
 - Login por CPF, cadastro e recuperação de senha por código enviado por e-mail
 - Agenda com **vaga real por horário**, limite semanal conforme o plano e prazo para cancelar/remarcar
-- Planos, checkout por Pix, boleto ou cartão e histórico de cobranças
+- Plano do aluno com data de acesso e vencimento
 - Resumo do mês: aulas concluídas, agendadas, canceladas e taxa de presença
 - Contrato e política de privacidade aceitos no app (LGPD)
 
@@ -34,7 +33,7 @@ sozinho em três passos e a cobrança recorrente libera o acesso automaticamente
 - Visão do dia: próxima turma, quem confirmou, ocupação da grade e quem está com plano vencido
 - Agenda por dia com os alunos de cada turma, encaixe e desmarcação
 - Grade fixa da semana com capacidade por turma
-- Alunos, liberação/bloqueio manual de acesso, congelamento de plano, inadimplência e log de ações
+- Alunos, liberação/bloqueio manual de acesso, congelamento de plano, vencimentos e log de ações
 
 | Painel do studio | Agenda do dia |
 |---|---|
@@ -50,28 +49,25 @@ flowchart LR
   S[Dono do studio] --> F
   F -->|HTTP + cookie httpOnly| API[API Node.js + Express]
   API --> DB[(Supabase / Postgres<br/>RLS + constraints)]
-  API --> AS[Asaas<br/>assinaturas]
-  AS -->|webhook: pagamento confirmado| API
   API --> EM[Resend<br/>e-mail]
 ```
 
 - **Nada é decidido no navegador.** O status do plano é lido do banco a cada requisição: um aluno
-  inadimplente perde o acesso na hora, sem esperar o token expirar.
-- **Pagamento orientado a eventos:** o webhook do Asaas é a fonte da verdade, com idempotência por evento.
+  com plano vencido ou bloqueado perde o acesso na hora, sem esperar o token expirar.
 - **Sessão segura:** JWT curto em cookie httpOnly, refresh token rotativo guardado só como hash.
 - **Concorrência no banco:** a disputa pela última vaga é resolvida por constraint no Postgres.
 
 ## Stack
 
-`Node.js` · `Express` · `Supabase (Postgres)` · `Zod` · `JWT` · `bcrypt` · `Helmet` · `Asaas` ·
+`Node.js` · `Express` · `Supabase (Postgres)` · `Zod` · `JWT` · `bcrypt` · `Helmet` ·
 `Resend` · `HTML/CSS/JS (módulos ES)` · `Vercel` · `Docker` · `Caddy`
 
 ## O que eu aprendi
 
 - Regra de negócio no servidor, sempre: autorização, limite semanal e vaga decididos no backend.
-- Tratar webhook de pagamento como fonte da verdade, com idempotência e auditoria.
+- Concorrência de verdade: resolver a disputa pela última vaga no banco, e não na tela.
 - Sessão segura na prática e tempo de resposta constante no login para não revelar se um CPF existe.
-- Entregar para cliente real: LGPD, migrações versionadas e testes de ponta a ponta antes de mudar produção.
+- LGPD, migrações versionadas e testes de ponta a ponta antes de mudar produção.
 
 ---
 
