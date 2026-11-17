@@ -4,9 +4,12 @@
 em turma com vaga limitada. O aluno marca a própria aula vendo a vaga real, e o acesso à agenda
 segue o plano dele. O dono acompanha o dia, os alunos e os vencimentos em um painel.
 
-> Sistema que desenvolvi para studios e academias de aula em turma. **Código-fonte privado**:
+> Sistema que conduzi para studios e academias de aula em turma. **Código-fonte privado**:
 > esta página mostra o que ele faz. As telas usam marca, pessoas e dados fictícios.
 > Acesso ao código para avaliação técnica sob solicitação.
+>
+> **Como foi feito:** conduzi o projeto (ideia, regras de negócio, validação e publicação) com apoio de
+> ferramentas de IA (Claude Code) para escrever o código.
 
 <p align="center">
   <img src="docs/prints/aluno-inicio.png" width="230" alt="Início da área do aluno">
